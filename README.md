@@ -13,13 +13,32 @@
 
 マイアカウント機能を使用するには、以下の環境変数が必要です。
 
+### Shopifyストアのドメイン設定
+
+このプロジェクトでは、以下のドメイン構成を使用しています：
+
+- **Next.jsサイト**: `ergogain.co.jp`
+- **Shopifyストア**: `shop.ergogain.co.jp`
+
+#### Shopifyでのドメイン設定手順
+
+1. DNSレコードを追加（ドメイン管理画面）
+   - タイプ: CNAME
+   - ホスト名: `shop`
+   - 値: `shops.myshopify.com`
+
+2. Shopify管理画面で設定
+   - Settings → Domains
+   - 「Connect existing domain」をクリック
+   - `shop.ergogain.co.jp` を入力して接続
+
 ### ローカル開発環境
 
 プロジェクトのルートディレクトリに `.env.local` ファイルを作成してください。
 
 ```bash
 # .env.local
-NEXT_PUBLIC_SHOPIFY_DOMAIN=your-store.myshopify.com
+NEXT_PUBLIC_SHOPIFY_DOMAIN=shop.ergogain.co.jp
 ```
 
 `.env.example` ファイルを参考にしてください。
@@ -30,7 +49,7 @@ NEXT_PUBLIC_SHOPIFY_DOMAIN=your-store.myshopify.com
 2. 「Settings」→「Environment Variables」を選択
 3. 以下の変数を追加：
    - **Key**: `NEXT_PUBLIC_SHOPIFY_DOMAIN`
-   - **Value**: `your-store.myshopify.com`（実際のストアドメイン）
+   - **Value**: `shop.ergogain.co.jp`
    - **Environments**: Production, Preview, Development すべてチェック
 4. 「Save」をクリック
 5. 再デプロイして変更を反映
