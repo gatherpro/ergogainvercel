@@ -60,6 +60,16 @@ export default function AccountPage() {
           便利な機能をご利用いただけます。
         </p>
 
+        {/* デバッグ用：生成されたURLを表示 */}
+        <p style={{
+          fontSize: "13px",
+          color: "#FF6B2C",
+          marginBottom: "24px",
+          fontFamily: "monospace"
+        }}>
+          デバッグ: {ACCOUNT_URL}
+        </p>
+
         {/* メインCTAボタン */}
         <a
           href={ACCOUNT_URL}
