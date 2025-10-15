@@ -7,6 +7,33 @@
 - オーダーメイド製品（フルオーダー・セミオーダー）
 - 既製品一覧とダイナミックルーティング
 - 会社情報、サポートページ、お知らせ
+- **マイアカウント（Shopify連携）** - ホスト型カスタマーアカウントへの誘導
+
+## 環境変数の設定
+
+マイアカウント機能を使用するには、以下の環境変数が必要です。
+
+### ローカル開発環境
+
+プロジェクトのルートディレクトリに `.env.local` ファイルを作成してください。
+
+```bash
+# .env.local
+NEXT_PUBLIC_SHOPIFY_DOMAIN=your-store.myshopify.com
+```
+
+`.env.example` ファイルを参考にしてください。
+
+### Vercelでの設定
+
+1. Vercelのプロジェクトダッシュボードを開く
+2. 「Settings」→「Environment Variables」を選択
+3. 以下の変数を追加：
+   - **Key**: `NEXT_PUBLIC_SHOPIFY_DOMAIN`
+   - **Value**: `your-store.myshopify.com`（実際のストアドメイン）
+   - **Environments**: Production, Preview, Development すべてチェック
+4. 「Save」をクリック
+5. 再デプロイして変更を反映
 
 ## ローカル開発
 
@@ -71,6 +98,7 @@ git push origin main
 | `/support/contact` | お問い合わせ |
 | `/support/warranty` | 保証について |
 | `/news` | お知らせ |
+| `/account` | マイアカウント（Shopify連携） |
 | `/not-found` | 404エラーページ |
 
 ## ディレクトリ構成
@@ -95,8 +123,10 @@ ergogainvercel/
 │   │   ├── faq/page.tsx              # FAQ
 │   │   ├── contact/page.tsx          # お問い合わせ
 │   │   └── warranty/page.tsx         # 保証
-│   └── news/
-│       └── page.tsx                  # お知らせ
+│   ├── news/
+│   │   └── page.tsx                  # お知らせ
+│   └── account/
+│       └── page.tsx                  # マイアカウント（Shopify連携）
 ├── components/
 │   ├── Nav.tsx                       # ヘッダーナビゲーション
 │   └── Footer.tsx                    # フッター
@@ -112,11 +142,19 @@ ergogainvercel/
 - **TypeScript**
 - **React 18**
 
-## 将来の拡張予定
+## Shopify連携について
 
-### Shopify Storefront API 連携
+### 実装済み機能
 
-現在はスタティックなページのみですが、将来的に以下の機能を追加予定：
+- **マイアカウント**: Shopifyのホスト型カスタマーアカウント（新アカウント推奨）への誘導
+  - ログイン・新規登録
+  - 注文履歴の確認
+  - 配送先情報の管理
+  - パスワード再設定案内
+
+### 将来の拡張予定
+
+以下の機能を追加予定：
 
 - Shopify Storefront APIとの連携
 - 製品データの動的取得
@@ -141,7 +179,7 @@ ergogainvercel/
 
 - 現在はインラインスタイルを使用していますが、将来的にTailwind CSSやCSS Modulesへの移行を検討
 - 既製品のダミーデータは `app/ergonomics/page.tsx` で定義
-- 環境変数が必要になった場合は `.env.local` を作成
+- 環境変数は `.env.local` で管理（詳細は上記の「環境変数の設定」を参照）
 
 ## ライセンス
 

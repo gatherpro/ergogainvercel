@@ -23,6 +23,7 @@ export default function Nav() {
     { href: "/about", label: "会社情報" },
     { href: "/support", label: "サポート" },
     { href: "/news", label: "お知らせ" },
+    { href: "/account", label: "マイアカウント" },
   ];
 
   return (
