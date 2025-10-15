@@ -11,7 +11,11 @@ if (!SHOPIFY_DOMAIN || !STOREFRONT_TOKEN) {
   );
 }
 
-const GRAPHQL_ENDPOINT = `https://${SHOPIFY_DOMAIN}/api/2024-10/graphql.json`;
+// Type assertion after validation
+const VALIDATED_DOMAIN: string = SHOPIFY_DOMAIN;
+const VALIDATED_TOKEN: string = STOREFRONT_TOKEN;
+
+const GRAPHQL_ENDPOINT = `https://${VALIDATED_DOMAIN}/api/2024-10/graphql.json`;
 
 /**
  * GraphQL request utility
@@ -21,7 +25,7 @@ export async function shopifyFetch<T>(query: string, variables?: Record<string, 
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+      "X-Shopify-Storefront-Access-Token": VALIDATED_TOKEN,
     },
     body: JSON.stringify({
       query,
