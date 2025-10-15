@@ -70,6 +70,17 @@ export default function AccountPage() {
           デバッグ: {ACCOUNT_URL}
         </p>
 
+        {/* テスト用：シンプルなリンク */}
+        <p style={{ marginBottom: "16px", fontSize: "14px" }}>
+          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#0066CC", textDecoration: "underline" }}>
+            テスト: Googleへのリンク（新規タブ）
+          </a>
+          {" | "}
+          <a href={ACCOUNT_URL} style={{ color: "#FF6B2C", textDecoration: "underline" }}>
+            テスト: シンプルなShopifyリンク
+          </a>
+        </p>
+
         {/* メインCTAボタン */}
         <a
           href={ACCOUNT_URL}
