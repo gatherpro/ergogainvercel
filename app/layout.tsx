@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ergogain（仮）公式サイト",
@@ -15,9 +16,6 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body style={{
-        margin: 0,
-        padding: 0,
-        fontFamily: "system-ui, -apple-system, sans-serif",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column"
@@ -25,10 +23,7 @@ export default function RootLayout({
         <Nav />
         <main style={{
           flex: 1,
-          maxWidth: "1200px",
-          width: "100%",
-          margin: "0 auto",
-          padding: "40px 20px"
+          width: "100%"
         }}>
           {children}
         </main>
