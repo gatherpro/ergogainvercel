@@ -8,17 +8,66 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <div>
-      <Link href="/support" style={{ color: "#0070f3", textDecoration: "none", marginBottom: "20px", display: "inline-block" }}>
+    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "96px 24px" }}>
+      <Link
+        href="/support"
+        style={{
+          color: "#FF6B2C",
+          textDecoration: "none",
+          marginBottom: "32px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          fontSize: "15px",
+          fontWeight: 500,
+          transition: "all 0.3s ease"
+        }}
+      >
         ← サポートに戻る
       </Link>
-      <h1 style={{ fontSize: "36px", marginBottom: "20px" }}>よくある質問（FAQ）</h1>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div style={{ textAlign: "center", marginBottom: "64px", marginTop: "32px" }}>
+        <h1 style={{
+          fontSize: "clamp(40px, 6vw, 56px)",
+          fontWeight: 700,
+          marginBottom: "24px",
+          letterSpacing: "-0.02em",
+          color: "#1D1D1F"
+        }}>
+          よくある質問（FAQ）
+        </h1>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         {faqs.map((faq, index) => (
-          <div key={index} style={{ padding: "20px", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
-            <h3 style={{ margin: 0, marginBottom: "10px", fontSize: "18px" }}>Q: {faq.q}</h3>
-            <p style={{ margin: 0, fontSize: "16px", color: "#666" }}>A: {faq.a}</p>
+          <div
+            key={index}
+            style={{
+              padding: "32px",
+              backgroundColor: "white",
+              borderRadius: "16px",
+              border: "1px solid #E5E5E7",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)"
+            }}
+          >
+            <h3 style={{
+              margin: 0,
+              marginBottom: "16px",
+              fontSize: "20px",
+              fontWeight: 600,
+              color: "#1D1D1F",
+              letterSpacing: "-0.01em"
+            }}>
+              Q: {faq.q}
+            </h3>
+            <p style={{
+              margin: 0,
+              fontSize: "17px",
+              color: "#6E6E73",
+              lineHeight: 1.6
+            }}>
+              A: {faq.a}
+            </p>
           </div>
         ))}
       </div>
