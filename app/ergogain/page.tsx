@@ -40,12 +40,12 @@ export default function ErgogainPage() {
             borderRadius: "20px",
             textDecoration: "none",
             border: "1px solid #E5E5E7",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
             display: "block",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-8px)";
+            e.currentTarget.style.transform = "translateY(-2px)";
             e.currentTarget.style.boxShadow = "0 12px 32px rgba(255, 107, 44, 0.2)";
             e.currentTarget.style.borderColor = "#FF6B2C";
           }}
@@ -95,12 +95,12 @@ export default function ErgogainPage() {
             borderRadius: "20px",
             textDecoration: "none",
             border: "1px solid #E5E5E7",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
             display: "block",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-8px)";
+            e.currentTarget.style.transform = "translateY(-2px)";
             e.currentTarget.style.boxShadow = "0 12px 32px rgba(255, 107, 44, 0.2)";
             e.currentTarget.style.borderColor = "#FF6B2C";
           }}

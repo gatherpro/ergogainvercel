@@ -47,12 +47,12 @@ export default function ErgonomicsPage() {
               borderRadius: "16px",
               textDecoration: "none",
               border: "1px solid #E5E5E7",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
               display: "block",
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow = "0 8px 24px rgba(255, 107, 44, 0.15)";
               e.currentTarget.style.borderColor = "#FF6B2C";
             }}
