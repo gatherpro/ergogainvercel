@@ -13,7 +13,13 @@
       "Bash(git push:*)",
       "Bash(npm install)",
       "Bash(npm run build)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(for file in app/page.tsx app/ergogain/page.tsx app/ergonomics/page.tsx app/news/page.tsx app/support/page.tsx)",
+      "Bash(do)",
+      "Bash(if ! grep -q '\"\"use client\"\"' \"$file\")",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
