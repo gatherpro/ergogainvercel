@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { customerResetByUrl } from "../../lib/auth";
 import { saveToken } from "../../lib/token";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
@@ -263,5 +263,24 @@ export default function ResetPasswordPage() {
         リンクが無効な場合は、再度パスワードリセットをリクエストしてください。
       </p>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "calc(100vh - 200px)",
+        fontSize: "17px",
+        color: "#6E6E73"
+      }}>
+        読み込み中...
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
