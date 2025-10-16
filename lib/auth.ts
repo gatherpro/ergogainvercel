@@ -378,3 +378,58 @@ export async function customerRecover(email: string): Promise<{ success: boolean
     return { success: false, errors: ["パスワードリセットの送信に失敗しました。"] };
   }
 }
+
+/**
+ * パスワードリセット（URLトークンを使用）
+ */
+export async function customerResetByUrl(
+  resetUrl: string,
+  password: string
+): Promise<{ success: boolean; errors: string[]; accessToken?: CustomerAccessToken }> {
+  const mutation = `
+    mutation customerResetByUrl($resetUrl: URL!, $password: String!) {
+      customerResetByUrl(resetUrl: $resetUrl, password: $password) {
+        customer {
+          id
+          email
+        }
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      customerResetByUrl: {
+        customer?: { id: string; email: string };
+        customerAccessToken?: CustomerAccessToken;
+        customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+      };
+    }>({
+      query: mutation,
+      variables: { resetUrl, password },
+    });
+
+    if (data.customerResetByUrl.customerUserErrors.length > 0) {
+      const errors = data.customerResetByUrl.customerUserErrors.map((err) => err.message);
+      return { success: false, errors };
+    }
+
+    return {
+      success: true,
+      errors: [],
+      accessToken: data.customerResetByUrl.customerAccessToken,
+    };
+  } catch (error) {
+    console.error("Password reset failed:", error);
+    return { success: false, errors: ["パスワードのリセットに失敗しました。"] };
+  }
+}
