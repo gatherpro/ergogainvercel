@@ -38,9 +38,9 @@ export default function AccountPage() {
           firstName: session.user.name?.split(" ")[0] || "",
           lastName: session.user.name?.split(" ")[1] || "",
           displayName: session.user.name || "",
-          phone: null,
-          defaultAddress: null
-        } as Customer);
+          phone: undefined,
+          defaultAddress: undefined
+        });
         setOrders([]);
         setLoading(false);
         return;
