@@ -181,6 +181,8 @@ export interface Product {
  * ハンドルから商品を取得
  */
 export async function getProductByHandle(handle: string): Promise<Product | null> {
+  console.log("getProductByHandle called with:", handle);
+
   const query = `
     query getProductByHandle($handle: String!) {
       product(handle: $handle) {
@@ -229,12 +231,18 @@ export async function getProductByHandle(handle: string): Promise<Product | null
   `;
 
   try {
-    const { data } = await storefrontFetch<{
+    const { data, errors } = await storefrontFetch<{
       product?: Product;
     }>({
       query,
       variables: { handle },
     });
+
+    console.log("GraphQL response:", { data, errors });
+
+    if (errors) {
+      console.error("GraphQL errors:", errors);
+    }
 
     return data.product || null;
   } catch (error) {

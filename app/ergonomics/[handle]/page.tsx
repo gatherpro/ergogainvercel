@@ -16,7 +16,12 @@ export default function ProductDetailPage({ params }: { params: { handle: string
 
   useEffect(() => {
     const loadProduct = async () => {
-      const productData = await getProductByHandle(params.handle);
+      console.log("Loading product with handle:", params.handle);
+      console.log("Decoded handle:", decodeURIComponent(params.handle));
+
+      const productData = await getProductByHandle(decodeURIComponent(params.handle));
+      console.log("Product data:", productData);
+
       setProduct(productData);
 
       // 最初のバリアントを選択
