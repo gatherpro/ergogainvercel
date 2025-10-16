@@ -1,40 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { customerLogin } from "../../lib/auth";
-import { saveToken } from "../../lib/token";
+import { customerRecover } from "../../lib/auth";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrors([]);
+    setSuccess(false);
     setLoading(true);
 
-    try {
-      const result = await customerLogin(email, password);
+    const result = await customerRecover(email);
 
-      if (result) {
-        // トークンを保存
-        saveToken(result.accessToken, result.expiresAt);
-        // アカウントページへリダイレクト
-        router.push("/account");
-      } else {
-        setError("メールアドレスまたはパスワードが正しくありません。");
-      }
-    } catch (err) {
-      setError("ログインに失敗しました。もう一度お試しください。");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      setSuccess(true);
+      setEmail("");
+    } else {
+      setErrors(result.errors);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -53,7 +44,7 @@ export default function LoginPage() {
         lineHeight: 1.15,
         textAlign: "center"
       }}>
-        ログイン
+        パスワードをお忘れの方
       </h1>
 
       <p style={{
@@ -63,21 +54,40 @@ export default function LoginPage() {
         marginBottom: "48px",
         textAlign: "center"
       }}>
-        アカウントにログインして、<br />
-        ご注文履歴やアカウント情報を確認できます。
+        ご登録のメールアドレスを入力してください。<br />
+        パスワードリセット用のリンクをお送りします。
       </p>
 
-      {error && (
+      {success && (
+        <div style={{
+          padding: "16px",
+          marginBottom: "24px",
+          backgroundColor: "#E8F5E9",
+          border: "1px solid #C8E6C9",
+          borderRadius: "12px",
+          color: "#2E7D32",
+          fontSize: "15px",
+          lineHeight: 1.6
+        }}>
+          パスワードリセット用のメールを送信しました。<br />
+          メールに記載されているリンクから、パスワードを再設定してください。
+        </div>
+      )}
+
+      {errors.length > 0 && (
         <div style={{
           padding: "16px",
           marginBottom: "24px",
           backgroundColor: "#FFEBEE",
           border: "1px solid #FFCDD2",
           borderRadius: "12px",
-          color: "#C62828",
-          fontSize: "15px"
+          color: "#C62828"
         }}>
-          {error}
+          {errors.map((error, index) => (
+            <p key={index} style={{ fontSize: "15px", marginBottom: index < errors.length - 1 ? "8px" : 0 }}>
+              • {error}
+            </p>
+          ))}
         </div>
       )}
 
@@ -117,53 +127,6 @@ export default function LoginPage() {
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            style={{
-              display: "block",
-              fontSize: "15px",
-              fontWeight: 600,
-              marginBottom: "8px",
-              color: "#1D1D1F"
-            }}
-          >
-            パスワード
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              fontSize: "16px",
-              border: "1px solid #D2D2D7",
-              borderRadius: "12px",
-              outline: "none",
-              transition: "border-color 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
-              boxSizing: "border-box"
-            }}
-            onFocus={(e) => e.currentTarget.style.borderColor = "#FF6B2C"}
-            onBlur={(e) => e.currentTarget.style.borderColor = "#D2D2D7"}
-          />
-          <p style={{ fontSize: "14px", marginTop: "8px", textAlign: "right" }}>
-            <Link
-              href="/forgot-password"
-              style={{
-                color: "#FF6B2C",
-                textDecoration: "none",
-                fontWeight: 500
-              }}
-            >
-              パスワードをお忘れの方
-            </Link>
-          </p>
-        </div>
-
         <button
           type="submit"
           disabled={loading}
@@ -192,7 +155,7 @@ export default function LoginPage() {
             e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 107, 44, 0.25)";
           }}
         >
-          {loading ? "ログイン中..." : "ログイン"}
+          {loading ? "送信中..." : "リセットメールを送信"}
         </button>
       </form>
 
@@ -206,16 +169,15 @@ export default function LoginPage() {
           fontSize: "15px",
           color: "#6E6E73"
         }}>
-          アカウントをお持ちでない場合は{" "}
           <Link
-            href="/register"
+            href="/login"
             style={{
               color: "#FF6B2C",
               textDecoration: "none",
               fontWeight: 600
             }}
           >
-            新規登録
+            ログインページに戻る
           </Link>
         </p>
       </div>
@@ -227,7 +189,7 @@ export default function LoginPage() {
         marginTop: "32px",
         lineHeight: 1.5
       }}>
-        ログイン情報はSSL暗号化通信により保護されています。
+        メールが届かない場合は、迷惑メールフォルダをご確認ください。
       </p>
     </div>
   );

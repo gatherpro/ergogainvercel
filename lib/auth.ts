@@ -283,3 +283,98 @@ export async function customerLogout(accessToken: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * プロフィール情報の更新
+ */
+export async function customerUpdate(
+  accessToken: string,
+  customer: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  }
+): Promise<{ success: boolean; errors: string[] }> {
+  const mutation = `
+    mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+      customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+        customer {
+          id
+          email
+          firstName
+          lastName
+          phone
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      customerUpdate: {
+        customer?: Customer;
+        customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+      };
+    }>({
+      query: mutation,
+      variables: {
+        customerAccessToken: accessToken,
+        customer,
+      },
+    });
+
+    if (data.customerUpdate.customerUserErrors.length > 0) {
+      const errors = data.customerUpdate.customerUserErrors.map((err) => err.message);
+      return { success: false, errors };
+    }
+
+    return { success: true, errors: [] };
+  } catch (error) {
+    console.error("Customer update failed:", error);
+    return { success: false, errors: ["更新に失敗しました。もう一度お試しください。"] };
+  }
+}
+
+/**
+ * パスワードリセットメールを送信
+ */
+export async function customerRecover(email: string): Promise<{ success: boolean; errors: string[] }> {
+  const mutation = `
+    mutation customerRecover($email: String!) {
+      customerRecover(email: $email) {
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      customerRecover: {
+        customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+      };
+    }>({
+      query: mutation,
+      variables: { email },
+    });
+
+    if (data.customerRecover.customerUserErrors.length > 0) {
+      const errors = data.customerRecover.customerUserErrors.map((err) => err.message);
+      return { success: false, errors };
+    }
+
+    return { success: true, errors: [] };
+  } catch (error) {
+    console.error("Password recovery failed:", error);
+    return { success: false, errors: ["パスワードリセットの送信に失敗しました。"] };
+  }
+}

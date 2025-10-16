@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { getCustomer, getCustomerOrders, customerLogout } from "../../lib/auth";
 import { getToken, clearToken } from "../../lib/token";
 import type { Customer, Order } from "../../lib/shopify";
@@ -140,15 +141,43 @@ export default function AccountPage() {
         padding: "32px",
         marginBottom: "48px"
       }}>
-        <h2 style={{
-          fontSize: "24px",
-          fontWeight: 600,
-          marginBottom: "24px",
-          color: "#1D1D1F",
-          letterSpacing: "-0.01em"
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px"
         }}>
-          アカウント情報
-        </h2>
+          <h2 style={{
+            fontSize: "24px",
+            fontWeight: 600,
+            color: "#1D1D1F",
+            letterSpacing: "-0.01em"
+          }}>
+            アカウント情報
+          </h2>
+          <Link
+            href="/account/edit"
+            style={{
+              padding: "8px 20px",
+              fontSize: "15px",
+              fontWeight: 600,
+              color: "#FF6B2C",
+              backgroundColor: "white",
+              border: "2px solid #FF6B2C",
+              borderRadius: "8px",
+              textDecoration: "none",
+              transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#FFF5F0";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "white";
+            }}
+          >
+            編集
+          </Link>
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "24px" }}>
           <div>
@@ -175,12 +204,49 @@ export default function AccountPage() {
 
         {customer.defaultAddress && (
           <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid #D2D2D7" }}>
-            <p style={{ fontSize: "14px", color: "#86868B", marginBottom: "8px" }}>デフォルト配送先</p>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: "8px"
+            }}>
+              <p style={{ fontSize: "14px", color: "#86868B" }}>デフォルト配送先</p>
+              <Link
+                href="/account/addresses"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#FF6B2C",
+                  textDecoration: "none"
+                }}
+              >
+                住所を管理
+              </Link>
+            </div>
             <p style={{ fontSize: "17px", color: "#1D1D1F", lineHeight: 1.6 }}>
               〒{customer.defaultAddress.zip}<br />
               {customer.defaultAddress.province} {customer.defaultAddress.city} {customer.defaultAddress.address1}
               {customer.defaultAddress.address2 && <><br />{customer.defaultAddress.address2}</>}
             </p>
+          </div>
+        )}
+
+        {!customer.defaultAddress && (
+          <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid #D2D2D7" }}>
+            <p style={{ fontSize: "15px", color: "#6E6E73", marginBottom: "12px" }}>
+              配送先住所が登録されていません
+            </p>
+            <Link
+              href="/account/addresses"
+              style={{
+                fontSize: "15px",
+                fontWeight: 600,
+                color: "#FF6B2C",
+                textDecoration: "none"
+              }}
+            >
+              住所を追加する →
+            </Link>
           </div>
         )}
       </div>
