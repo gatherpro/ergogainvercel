@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
+import ClientProviders from "../components/ClientProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,14 +21,16 @@ export default function RootLayout({
         display: "flex",
         flexDirection: "column"
       }}>
-        <Nav />
-        <main style={{
-          flex: 1,
-          width: "100%"
-        }}>
-          {children}
-        </main>
-        <Footer />
+        <ClientProviders>
+          <Nav />
+          <main style={{
+            flex: 1,
+            width: "100%"
+          }}>
+            {children}
+          </main>
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   );

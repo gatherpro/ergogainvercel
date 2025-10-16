@@ -130,6 +130,7 @@ export interface Cart {
           product: {
             title: string;
           };
+          priceV2?: Money;
         };
       };
     }>;

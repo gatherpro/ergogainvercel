@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { hasToken } from "../lib/token";
+import { useCart } from "../contexts/CartContext";
 
 export default function Nav() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,7 +32,6 @@ export default function Nav() {
     { href: "/about", label: "会社情報" },
     { href: "/support", label: "サポート" },
     { href: "/news", label: "お知らせ" },
-    { href: isLoggedIn ? "/account" : "/login", label: "マイアカウント" },
   ];
 
   return (
@@ -107,6 +108,54 @@ export default function Nav() {
               </Link>
             );
           })}
+
+          {/* カートアイコン */}
+          <Link
+            href="/cart"
+            style={{
+              position: "relative",
+              fontSize: "15px",
+              fontWeight: pathname === "/cart" ? 600 : 400,
+              color: pathname === "/cart" ? "#FF6B2C" : "#111",
+              textDecoration: "none",
+              transition: "color 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
+              padding: "8px 0"
+            }}
+          >
+            カート
+            {itemCount > 0 && (
+              <span style={{
+                position: "absolute",
+                top: "-4px",
+                right: "-16px",
+                backgroundColor: "#FF6B2C",
+                color: "white",
+                fontSize: "11px",
+                fontWeight: 700,
+                borderRadius: "10px",
+                padding: "2px 6px",
+                minWidth: "18px",
+                textAlign: "center"
+              }}>
+                {itemCount}
+              </span>
+            )}
+          </Link>
+
+          {/* マイアカウント */}
+          <Link
+            href={isLoggedIn ? "/account" : "/login"}
+            style={{
+              fontSize: "15px",
+              fontWeight: pathname === "/account" || pathname === "/login" ? 600 : 400,
+              color: pathname === "/account" || pathname === "/login" ? "#FF6B2C" : "#111",
+              textDecoration: "none",
+              transition: "color 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
+              padding: "8px 0"
+            }}
+          >
+            マイアカウント
+          </Link>
         </div>
       </div>
     </nav>
