@@ -140,3 +140,173 @@ export interface Cart {
     subtotalAmount: Money;
   };
 }
+
+export interface ProductVariant {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  priceV2: Money;
+  selectedOptions?: Array<{
+    name: string;
+    value: string;
+  }>;
+}
+
+export interface Product {
+  id: string;
+  title: string;
+  handle: string;
+  description: string;
+  descriptionHtml: string;
+  priceRange: {
+    minVariantPrice: Money;
+    maxVariantPrice: Money;
+  };
+  images: {
+    edges: Array<{
+      node: {
+        url: string;
+        altText?: string;
+      };
+    }>;
+  };
+  variants: {
+    edges: Array<{
+      node: ProductVariant;
+    }>;
+  };
+}
+
+/**
+ * ハンドルから商品を取得
+ */
+export async function getProductByHandle(handle: string): Promise<Product | null> {
+  const query = `
+    query getProductByHandle($handle: String!) {
+      product(handle: $handle) {
+        id
+        title
+        handle
+        description
+        descriptionHtml
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        images(first: 10) {
+          edges {
+            node {
+              url
+              altText
+            }
+          }
+        }
+        variants(first: 20) {
+          edges {
+            node {
+              id
+              title
+              availableForSale
+              priceV2 {
+                amount
+                currencyCode
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      product?: Product;
+    }>({
+      query,
+      variables: { handle },
+    });
+
+    return data.product || null;
+  } catch (error) {
+    console.error("Failed to get product:", error);
+    return null;
+  }
+}
+
+/**
+ * 全商品を取得
+ */
+export async function getProducts(first: number = 20): Promise<Product[]> {
+  const query = `
+    query getProducts($first: Int!) {
+      products(first: $first) {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            descriptionHtml
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            images(first: 1) {
+              edges {
+                node {
+                  url
+                  altText
+                }
+              }
+            }
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  priceV2 {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      products: {
+        edges: Array<{ node: Product }>;
+      };
+    }>({
+      query,
+      variables: { first },
+    });
+
+    return data.products.edges.map((edge) => edge.node);
+  } catch (error) {
+    console.error("Failed to get products:", error);
+    return [];
+  }
+}
