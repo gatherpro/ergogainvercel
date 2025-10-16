@@ -1,234 +1,283 @@
 "use client";
 
-/**
- * マイアカウントページ
- *
- * Shopifyのホスト型カスタマーアカウント（新アカウント推奨）に誘導します。
- *
- * 【環境変数】
- * - NEXT_PUBLIC_SHOPIFY_DOMAIN: Shopifyストアのドメイン（例: your-store.myshopify.com）
- *
- * 【URL構成】
- * - 新アカウント（推奨）: https://{SHOPIFY_DOMAIN}/account
- *   └ ログインと新規登録の両方に対応
- * - ログイン: https://{SHOPIFY_DOMAIN}/account/login
- * - 新規登録: https://{SHOPIFY_DOMAIN}/account/register
- *
- * 【クラシックアカウントへの切替方法】
- * もしクラシックアカウントを使用する場合は、以下のURLに変更してください：
- * - const ACCOUNT_URL = `https://${SHOPIFY_DOMAIN}/account`;
- *   ↓
- * - const ACCOUNT_URL = `https://${SHOPIFY_DOMAIN}/account/login`;
- */
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getCustomer, getCustomerOrders, customerLogout } from "../../lib/auth";
+import { getToken, clearToken } from "../../lib/token";
+import type { Customer, Order } from "../../lib/shopify";
 
 export default function AccountPage() {
-  const SHOPIFY_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "your-store.myshopify.com";
+  const router = useRouter();
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 新アカウント（推奨）: /account でログイン・新規登録の両方に対応
-  const ACCOUNT_URL = `https://${SHOPIFY_DOMAIN}/account`;
+  useEffect(() => {
+    const loadCustomerData = async () => {
+      const token = getToken();
 
-  // クラシックアカウント用のURL（必要に応じてコメント解除）
-  // const ACCOUNT_URL = `https://${SHOPIFY_DOMAIN}/account/login`;
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const customerData = await getCustomer(token);
+        if (customerData) {
+          setCustomer(customerData);
+          const ordersData = await getCustomerOrders(token, 10);
+          setOrders(ordersData);
+        } else {
+          // トークンが無効
+          clearToken();
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Failed to load customer data:", error);
+        clearToken();
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCustomerData();
+  }, [router]);
+
+  const handleLogout = async () => {
+    const token = getToken();
+    if (token) {
+      await customerLogout(token);
+    }
+    clearToken();
+    router.push("/");
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "calc(100vh - 200px)",
+        fontSize: "17px",
+        color: "#6E6E73"
+      }}>
+        読み込み中...
+      </div>
+    );
+  }
+
+  if (!customer) {
+    return null;
+  }
 
   return (
     <div style={{
-      maxWidth: "640px",
+      maxWidth: "1200px",
       margin: "0 auto",
       padding: "96px 24px",
       minHeight: "calc(100vh - 200px)"
     }}>
-      {/* メインコンテンツ */}
-      <div style={{ textAlign: "center", marginBottom: "48px" }}>
-        <h1 style={{
-          fontSize: "clamp(32px, 5vw, 48px)",
-          fontWeight: 700,
-          marginBottom: "24px",
-          letterSpacing: "-0.02em",
-          color: "#1D1D1F",
-          lineHeight: 1.15
-        }}>
-          マイアカウント
-        </h1>
-
-        <p style={{
-          fontSize: "19px",
-          color: "#6E6E73",
-          lineHeight: 1.6,
-          marginBottom: "40px"
-        }}>
-          ご注文履歴の確認、配送先の管理、お気に入り商品の保存など、<br />
-          便利な機能をご利用いただけます。
-        </p>
-
-        {/* デバッグ用：生成されたURLを表示 */}
-        <p style={{
-          fontSize: "13px",
-          color: "#FF6B2C",
-          marginBottom: "24px",
-          fontFamily: "monospace"
-        }}>
-          デバッグ: {ACCOUNT_URL}
-        </p>
-
-        {/* テスト用：シンプルなリンク */}
-        <p style={{ marginBottom: "16px", fontSize: "14px" }}>
-          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#0066CC", textDecoration: "underline" }}>
-            テスト: Googleへのリンク（新規タブ）
-          </a>
-          {" | "}
-          <a href={ACCOUNT_URL} style={{ color: "#FF6B2C", textDecoration: "underline" }}>
-            テスト: シンプルなShopifyリンク
-          </a>
-        </p>
-
-        {/* メインCTAボタン */}
-        <a
-          href={ACCOUNT_URL}
-          style={{
-            display: "inline-block",
-            padding: "18px 48px",
+      {/* ヘッダー */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "48px",
+        flexWrap: "wrap",
+        gap: "16px"
+      }}>
+        <div>
+          <h1 style={{
+            fontSize: "clamp(32px, 5vw, 48px)",
+            fontWeight: 700,
+            marginBottom: "8px",
+            letterSpacing: "-0.02em",
+            color: "#1D1D1F",
+            lineHeight: 1.15
+          }}>
+            こんにちは、{customer.firstName || customer.displayName}さん
+          </h1>
+          <p style={{
             fontSize: "17px",
+            color: "#6E6E73"
+          }}>
+            {customer.email}
+          </p>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "12px 24px",
+            fontSize: "16px",
             fontWeight: 600,
-            color: "white",
-            background: "linear-gradient(135deg, #FF6B2C 0%, #FF8C5A 100%)",
+            color: "#6E6E73",
+            backgroundColor: "white",
+            border: "2px solid #D2D2D7",
             borderRadius: "12px",
-            textDecoration: "none",
-            transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
-            boxShadow: "0 4px 12px rgba(255, 107, 44, 0.25)"
+            cursor: "pointer",
+            transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 6px 20px rgba(255, 107, 44, 0.35)";
+            e.currentTarget.style.borderColor = "#FF6B2C";
+            e.currentTarget.style.color = "#FF6B2C";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 107, 44, 0.25)";
+            e.currentTarget.style.borderColor = "#D2D2D7";
+            e.currentTarget.style.color = "#6E6E73";
           }}
         >
-          ログイン / 新規登録
-        </a>
-
-        {/* セキュリティ注意書き */}
-        <p style={{
-          fontSize: "14px",
-          color: "#86868B",
-          marginTop: "24px",
-          lineHeight: 1.5
-        }}>
-          決済・個人情報の入力はShopifyの安全な画面で行われます。<br />
-          SSL暗号化通信により、お客様の情報は保護されています。
-        </p>
+          ログアウト
+        </button>
       </div>
 
-      {/* FAQ風の小項目 */}
+      {/* アカウント情報 */}
       <div style={{
         backgroundColor: "#F5F5F7",
-        borderRadius: "16px",
+        borderRadius: "18px",
         padding: "32px",
-        marginTop: "48px"
+        marginBottom: "48px"
       }}>
         <h2 style={{
-          fontSize: "21px",
+          fontSize: "24px",
           fontWeight: 600,
           marginBottom: "24px",
           color: "#1D1D1F",
           letterSpacing: "-0.01em"
         }}>
-          よくある質問
+          アカウント情報
         </h2>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* パスワード再設定 */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "24px" }}>
           <div>
-            <h3 style={{
-              fontSize: "17px",
-              fontWeight: 600,
-              marginBottom: "8px",
-              color: "#1D1D1F"
-            }}>
-              パスワードを忘れた場合
-            </h3>
-            <p style={{
-              fontSize: "15px",
-              color: "#6E6E73",
-              lineHeight: 1.5,
-              margin: 0
-            }}>
-              ログイン画面の「パスワードをお忘れですか？」リンクから、<br />
-              登録されたメールアドレス宛にリセット用のリンクをお送りします。
+            <p style={{ fontSize: "14px", color: "#86868B", marginBottom: "8px" }}>お名前</p>
+            <p style={{ fontSize: "17px", color: "#1D1D1F", fontWeight: 500 }}>
+              {customer.firstName && customer.lastName
+                ? `${customer.lastName} ${customer.firstName}`
+                : customer.displayName}
             </p>
           </div>
 
-          {/* ゲスト購入 */}
           <div>
-            <h3 style={{
-              fontSize: "17px",
-              fontWeight: 600,
-              marginBottom: "8px",
-              color: "#1D1D1F"
-            }}>
-              アカウント登録せずに購入できますか？
-            </h3>
-            <p style={{
-              fontSize: "15px",
-              color: "#6E6E73",
-              lineHeight: 1.5,
-              margin: 0
-            }}>
-              はい、ゲストとして購入いただけます。<br />
-              ただし、アカウントを作成すると注文履歴の確認や、<br />
-              次回以降のスムーズなお買い物が可能になります。
-            </p>
+            <p style={{ fontSize: "14px", color: "#86868B", marginBottom: "8px" }}>メールアドレス</p>
+            <p style={{ fontSize: "17px", color: "#1D1D1F", fontWeight: 500 }}>{customer.email}</p>
           </div>
 
-          {/* アカウント作成のメリット */}
-          <div>
-            <h3 style={{
-              fontSize: "17px",
-              fontWeight: 600,
-              marginBottom: "8px",
-              color: "#1D1D1F"
-            }}>
-              アカウント作成のメリット
-            </h3>
-            <ul style={{
-              fontSize: "15px",
-              color: "#6E6E73",
-              lineHeight: 1.7,
-              margin: 0,
-              paddingLeft: "20px"
-            }}>
-              <li>ご注文履歴の確認</li>
-              <li>配送先情報の保存・管理</li>
-              <li>お気に入り商品の保存</li>
-              <li>次回以降のスムーズなチェックアウト</li>
-              <li>限定セールやキャンペーン情報の受け取り</li>
-            </ul>
-          </div>
+          {customer.phone && (
+            <div>
+              <p style={{ fontSize: "14px", color: "#86868B", marginBottom: "8px" }}>電話番号</p>
+              <p style={{ fontSize: "17px", color: "#1D1D1F", fontWeight: 500 }}>{customer.phone}</p>
+            </div>
+          )}
         </div>
+
+        {customer.defaultAddress && (
+          <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid #D2D2D7" }}>
+            <p style={{ fontSize: "14px", color: "#86868B", marginBottom: "8px" }}>デフォルト配送先</p>
+            <p style={{ fontSize: "17px", color: "#1D1D1F", lineHeight: 1.6 }}>
+              〒{customer.defaultAddress.zip}<br />
+              {customer.defaultAddress.province} {customer.defaultAddress.city} {customer.defaultAddress.address1}
+              {customer.defaultAddress.address2 && <><br />{customer.defaultAddress.address2}</>}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* フッター補足 */}
-      <p style={{
-        fontSize: "13px",
-        color: "#86868B",
-        textAlign: "center",
-        marginTop: "48px",
-        lineHeight: 1.5
-      }}>
-        アカウントに関するお問い合わせは、
-        <a
-          href="/support/contact"
-          style={{
-            color: "#FF6B2C",
-            textDecoration: "none",
-            fontWeight: 500
-          }}
-        >
-          サポートページ
-        </a>
-        よりご連絡ください。
-      </p>
+      {/* 注文履歴 */}
+      <div>
+        <h2 style={{
+          fontSize: "24px",
+          fontWeight: 600,
+          marginBottom: "24px",
+          color: "#1D1D1F",
+          letterSpacing: "-0.01em"
+        }}>
+          ご注文履歴
+        </h2>
+
+        {orders.length === 0 ? (
+          <div style={{
+            backgroundColor: "#F5F5F7",
+            borderRadius: "18px",
+            padding: "48px 32px",
+            textAlign: "center"
+          }}>
+            <p style={{ fontSize: "17px", color: "#6E6E73" }}>
+              まだご注文はありません。
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                style={{
+                  backgroundColor: "white",
+                  border: "1px solid #D2D2D7",
+                  borderRadius: "18px",
+                  padding: "24px",
+                  transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#FF6B2C";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#D2D2D7";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <div style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: "16px",
+                  flexWrap: "wrap",
+                  gap: "12px"
+                }}>
+                  <div>
+                    <p style={{ fontSize: "19px", fontWeight: 600, color: "#1D1D1F", marginBottom: "4px" }}>
+                      注文番号: #{order.orderNumber}
+                    </p>
+                    <p style={{ fontSize: "15px", color: "#6E6E73" }}>
+                      {new Date(order.processedAt).toLocaleDateString("ja-JP", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                      })}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: "24px", fontWeight: 700, color: "#FF6B2C" }}>
+                      ¥{Number(order.totalPrice.amount).toLocaleString()}
+                    </p>
+                    <p style={{ fontSize: "14px", color: "#6E6E73" }}>
+                      {order.financialStatus === "PAID" ? "支払い済み" : order.financialStatus}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {order.lineItems.edges.slice(0, 3).map((lineItem, index) => (
+                    <div key={index} style={{ fontSize: "15px", color: "#6E6E73" }}>
+                      • {lineItem.node.title} × {lineItem.node.quantity}
+                    </div>
+                  ))}
+                  {order.lineItems.edges.length > 3 && (
+                    <div style={{ fontSize: "14px", color: "#86868B" }}>
+                      他 {order.lineItems.edges.length - 3} 点
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

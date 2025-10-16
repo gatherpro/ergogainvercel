@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { hasToken } from "../lib/token";
 
 export default function Nav() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,11 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    // ログイン状態をチェック
+    setIsLoggedIn(hasToken());
+  }, [pathname]);
+
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/ergogain", label: "Ergogain" },
@@ -23,7 +30,7 @@ export default function Nav() {
     { href: "/about", label: "会社情報" },
     { href: "/support", label: "サポート" },
     { href: "/news", label: "お知らせ" },
-    { href: "/account", label: "マイアカウント" },
+    { href: isLoggedIn ? "/account" : "/login", label: "マイアカウント" },
   ];
 
   return (
