@@ -18,12 +18,17 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     // URLパラメータからリセットURLを取得
     const url = searchParams.get("url");
+    console.log("Reset URL from params:", url);
+
     if (url) {
+      console.log("Setting reset URL:", url);
       setResetUrl(url);
     } else {
       // URLパラメータがない場合は、現在のURLをリセットURLとして使用
       // Shopifyメールのリンクから直接アクセスされた場合
       const fullUrl = window.location.href;
+      console.log("Full URL:", fullUrl);
+
       if (fullUrl.includes("/account/reset/")) {
         setResetUrl(fullUrl);
       } else {
@@ -35,6 +40,8 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors([]);
+
+    console.log("handleSubmit called with resetUrl:", resetUrl);
 
     if (!resetUrl) {
       setErrors(["無効なリセットリンクです。"]);
@@ -53,14 +60,18 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
 
+    console.log("Calling customerResetByUrl with URL:", resetUrl);
     const result = await customerResetByUrl(resetUrl, password);
+    console.log("customerResetByUrl result:", result);
 
     if (result.success && result.accessToken) {
       // パスワードリセット成功 - トークンを保存して自動ログイン
+      console.log("Password reset successful, saving token and redirecting");
       saveToken(result.accessToken.accessToken, result.accessToken.expiresAt);
       // アカウントページへリダイレクト
       router.push("/account");
     } else {
+      console.log("Password reset failed:", result.errors);
       setErrors(result.errors.length > 0 ? result.errors : ["パスワードのリセットに失敗しました。リンクの有効期限が切れている可能性があります。"]);
       setLoading(false);
     }
