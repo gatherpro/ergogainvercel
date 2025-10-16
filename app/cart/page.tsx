@@ -5,6 +5,15 @@ import { useCart } from "../../contexts/CartContext";
 export default function CartPage() {
   const { cart, loading, removeItem, updateQuantity, itemCount } = useCart();
 
+  // チェックアウトURLにreturn_toパラメータを追加
+  const getCheckoutUrl = () => {
+    if (!cart) return "";
+
+    const returnUrl = encodeURIComponent("https://ergogain.co.jp/order-confirmation");
+    const separator = cart.checkoutUrl.includes("?") ? "&" : "?";
+    return `${cart.checkoutUrl}${separator}return_to=${returnUrl}`;
+  };
+
   if (loading) {
     return (
       <div style={{
@@ -296,7 +305,7 @@ export default function CartPage() {
         </p>
 
         <a
-          href={cart.checkoutUrl}
+          href={getCheckoutUrl()}
           style={{
             display: "block",
             width: "100%",
