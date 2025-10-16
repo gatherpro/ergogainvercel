@@ -3,20 +3,50 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 import { getCustomer, getCustomerOrders, customerLogout } from "../../lib/auth";
 import { getToken, clearToken } from "../../lib/token";
 import type { Customer, Order } from "../../lib/shopify";
 
 export default function AccountPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCustomerData = async () => {
+      // NextAuthセッションチェック
+      if (status === "loading") {
+        return; // セッション読み込み中は待機
+      }
+
       const token = getToken();
 
+      // ShopifyトークンもNextAuthセッションもない場合はログインページへ
+      if (!token && status === "unauthenticated") {
+        router.push("/login");
+        return;
+      }
+
+      // Googleログインユーザー（Shopifyトークンなし）の場合
+      if (!token && session?.user) {
+        setCustomer({
+          id: "",
+          email: session.user.email || "",
+          firstName: session.user.name?.split(" ")[0] || "",
+          lastName: session.user.name?.split(" ")[1] || "",
+          displayName: session.user.name || "",
+          phone: null,
+          defaultAddress: null
+        } as Customer);
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+
+      // Shopifyトークンがある場合は既存の処理
       if (!token) {
         router.push("/login");
         return;
@@ -43,14 +73,18 @@ export default function AccountPage() {
     };
 
     loadCustomerData();
-  }, [router]);
+  }, [router, session, status]);
 
   const handleLogout = async () => {
     const token = getToken();
     if (token) {
       await customerLogout(token);
+      clearToken();
     }
-    clearToken();
+    // NextAuthセッションもログアウト
+    if (session) {
+      await signOut({ redirect: false });
+    }
     router.push("/");
   };
 
