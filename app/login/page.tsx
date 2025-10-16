@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { customerLogin } from "../../lib/auth";
 import { saveToken } from "../../lib/token";
 
@@ -191,36 +192,20 @@ export default function LoginPage() {
       }}>
         <p style={{
           fontSize: "15px",
-          color: "#6E6E73",
-          marginBottom: "16px"
+          color: "#6E6E73"
         }}>
-          アカウントをお持ちでない場合
+          アカウントをお持ちでない場合は{" "}
+          <Link
+            href="/register"
+            style={{
+              color: "#FF6B2C",
+              textDecoration: "none",
+              fontWeight: 600
+            }}
+          >
+            新規登録
+          </Link>
         </p>
-        <a
-          href={`https://${process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN}/account/register`}
-          style={{
-            display: "inline-block",
-            padding: "12px 32px",
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#FF6B2C",
-            backgroundColor: "white",
-            border: "2px solid #FF6B2C",
-            borderRadius: "12px",
-            textDecoration: "none",
-            transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#FFF5F0";
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "white";
-            e.currentTarget.style.transform = "translateY(0)";
-          }}
-        >
-          新規登録
-        </a>
       </div>
 
       <p style={{

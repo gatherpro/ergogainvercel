@@ -7,6 +7,62 @@
 import { storefrontFetch, Customer, CustomerAccessToken, Order } from "./shopify";
 
 /**
+ * 顧客登録
+ */
+export async function customerCreate(
+  email: string,
+  password: string,
+  firstName?: string,
+  lastName?: string
+): Promise<{ success: boolean; errors: string[] }> {
+  const mutation = `
+    mutation customerCreate($input: CustomerCreateInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id
+          email
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data } = await storefrontFetch<{
+      customerCreate: {
+        customer?: { id: string; email: string };
+        customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+      };
+    }>({
+      query: mutation,
+      variables: {
+        input: {
+          email,
+          password,
+          firstName,
+          lastName,
+          acceptsMarketing: false,
+        },
+      },
+    });
+
+    if (data.customerCreate.customerUserErrors.length > 0) {
+      const errors = data.customerCreate.customerUserErrors.map((err) => err.message);
+      return { success: false, errors };
+    }
+
+    return { success: true, errors: [] };
+  } catch (error) {
+    console.error("Registration failed:", error);
+    return { success: false, errors: ["登録に失敗しました。もう一度お試しください。"] };
+  }
+}
+
+/**
  * 顧客ログイン
  */
 export async function customerLogin(email: string, password: string): Promise<CustomerAccessToken | null> {
