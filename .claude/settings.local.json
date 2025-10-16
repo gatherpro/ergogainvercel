@@ -21,7 +21,17 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(find:*)",
-      "Bash(for file in app/ergogain/page.tsx app/ergonomics/page.tsx app/page.tsx)"
+      "Bash(for file in app/ergogain/page.tsx app/ergonomics/page.tsx app/page.tsx)",
+      "Bash(node:*)",
+      "Bash(npm --version)",
+      "Bash(npx tsc:*)",
+      "Bash(cat:*)",
+      "Bash(npm run dev)",
+      "Bash(nslookup:*)",
+      "Bash(git restore:*)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:shopify.dev)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
