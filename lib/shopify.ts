@@ -14,8 +14,12 @@ if (!SHOPIFY_STORE_DOMAIN || !STOREFRONT_TOKEN) {
   );
 }
 
+// 検証後の型アサーション
+const VALIDATED_STORE_DOMAIN: string = SHOPIFY_STORE_DOMAIN;
+const VALIDATED_TOKEN: string = STOREFRONT_TOKEN;
+
 const STOREFRONT_API_VERSION = "2024-01";
-const STOREFRONT_API_URL = `https://${SHOPIFY_STORE_DOMAIN}/api/${STOREFRONT_API_VERSION}/graphql.json`;
+const STOREFRONT_API_URL = `https://${VALIDATED_STORE_DOMAIN}/api/${STOREFRONT_API_VERSION}/graphql.json`;
 
 /**
  * Shopify Storefront API にGraphQLクエリを送信
@@ -33,7 +37,7 @@ export async function storefrontFetch<T>({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+      "X-Shopify-Storefront-Access-Token": VALIDATED_TOKEN,
       ...headers,
     },
     body: JSON.stringify({ query, variables }),
